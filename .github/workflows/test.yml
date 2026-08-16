@@ -24,9 +24,7 @@ jobs:
           core: false
           cask: false
       - name: Add and trust the test formula
-        run: |
-          brew tap h920032/cinetty "$GITHUB_WORKSPACE"
-          brew trust --formula h920032/cinetty/cinetty
+        run: brew trust --formula h920032/cinetty/cinetty
       - name: Audit formula
         run: brew audit --strict --online h920032/cinetty/cinetty
       - name: Install formula
