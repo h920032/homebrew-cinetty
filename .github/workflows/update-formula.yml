@@ -23,6 +23,7 @@ jobs:
         run: |
           curl -fsSL https://github.com/h920032/cinetty/releases/latest/download/cinetty.rb -o Formula/cinetty.rb.new
           test -s Formula/cinetty.rb.new
+          sed -i '/^[[:space:]]*version "[^"]*"$/d' Formula/cinetty.rb.new
           ruby -c Formula/cinetty.rb.new
           if cmp -s Formula/cinetty.rb Formula/cinetty.rb.new; then
             rm Formula/cinetty.rb.new
