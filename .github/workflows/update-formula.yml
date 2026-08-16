@@ -1,0 +1,46 @@
+name: Update formula
+
+on:
+  schedule:
+    - cron: "23 5 * * *"
+  workflow_dispatch:
+
+permissions:
+  actions: write
+  contents: write
+
+concurrency:
+  group: update-formula
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - name: Download latest CineTTY formula
+        id: update
+        run: |
+          curl -fsSL https://github.com/h920032/cinetty/releases/latest/download/cinetty.rb -o Formula/cinetty.rb.new
+          test -s Formula/cinetty.rb.new
+          ruby -c Formula/cinetty.rb.new
+          if cmp -s Formula/cinetty.rb Formula/cinetty.rb.new; then
+            rm Formula/cinetty.rb.new
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            mv Formula/cinetty.rb.new Formula/cinetty.rb
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Publish updated formula
+        if: steps.update.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Formula/cinetty.rb
+          git commit -m "Update CineTTY formula"
+          git push
+      - name: Start installation tests
+        if: steps.update.outputs.changed == 'true'
+        run: gh workflow run test.yml --ref main
+        env:
+          GH_TOKEN: ${{ github.token }}

@@ -1,0 +1,37 @@
+name: Test formula
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  install:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-15, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Set up Homebrew
+        uses: Homebrew/actions/setup-homebrew@df4b09108a1de9d6f995fe68f302b3f68bd6d2ef
+        with:
+          core: false
+          cask: false
+      - name: Add and trust the test formula
+        run: |
+          brew tap h920032/cinetty "$GITHUB_WORKSPACE"
+          brew trust --formula h920032/cinetty/cinetty
+      - name: Audit formula
+        run: brew audit --strict --online h920032/cinetty/cinetty
+      - name: Install formula
+        run: brew install h920032/cinetty/cinetty
+      - name: Test formula
+        run: brew test h920032/cinetty/cinetty
+      - name: Check installed command
+        run: cinetty -version
