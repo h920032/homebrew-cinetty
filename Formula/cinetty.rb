@@ -1,7 +1,6 @@
 class Cinetty < Formula
   desc "Movie-style terminal coding and monitoring simulator"
   homepage "https://github.com/h920032/cinetty"
-  version "0.5.0"
   license "MIT"
 
   on_macos do
